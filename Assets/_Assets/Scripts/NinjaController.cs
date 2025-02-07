@@ -1,105 +1,100 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 public class NinjaController : MonoBehaviour
 {
-    private Rigidbody2D rb;
-    private Animator animator;
-    private bool isGrounded;
-    private bool isAttacking;
-    private bool isTakingDamage;
+    [Header("Basic Stats")]
+    public float Health = 100f;
+    public float MoveSpeed = 5f;
+    public float JumpForce = 10f;
 
-    public float moveSpeed = 5f;
-    public float jumpForce = 10f;
-    public int health = 100;
+    [Header("Knockback Settings")]
+    public float HorizontalKnockback = 5f;
+    public float VerticalKnockback = 2.5f;
+    public float KnockbackDuration = 0.5f;
+    public float FallGravityMultiplier = 2f;
+
+    public bool IsGrounded { get; private set; }
+    public bool IsMoving { get; private set; }
+    public bool IsAttacking { get; private set; }
+    public bool IsHurt { get; private set; }
+    public bool IsDead { get; private set; }
+    public LayerMask GroundLayer;
+    public Collider2D GroundCheckCollider;
+    public string GroundTag = "Ground";
+    public Animator animator;
+    [ShowInInspector] public NinjaStateMachine stateMachine;
+    public Rigidbody2D rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        stateMachine = new NinjaStateMachine(new NinjaIdleState(stateMachine, this));
     }
 
     void Update()
     {
-        if (isTakingDamage) return;
-
         float moveInput = Input.GetAxis("Horizontal");
-        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+        IsMoving = Mathf.Abs(moveInput) > 0.1f;
+        IsAttacking = (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0)) && IsGrounded;
 
-        if (moveInput != 0)
+        // Test damage with E key
+        if (Input.GetKeyDown(KeyCode.E) && !IsHurt)
         {
-            transform.localScale = new Vector3(Mathf.Sign(moveInput), 1, 1);
+            TakeDamage(10f);
         }
 
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // If attacking, prioritize attack state
+        if (IsAttacking && !IsDead && !IsHurt)
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            stateMachine.ChangeState(new NinjaAttackState(stateMachine, this));
         }
 
-        if (Input.GetButtonDown("Fire1") && !isAttacking)
+        stateMachine.Update();
+    }
+
+    public void TakeDamage(float amount)
+    {
+        if (IsHurt) return; // Prevent stun lock
+        
+        Health -= amount;
+        IsHurt = true;
+        
+        if (Health <= 0)
         {
-            StartCoroutine(Attack());
-        }
-
-        UpdateAnimations(moveInput);
-    }
-
-    private void UpdateAnimations(float moveInput)
-    {
-        animator.SetFloat("Speed", Mathf.Abs(moveInput));
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetBool("isAttacking", isAttacking);
-        animator.SetBool("isTakingDamage", isTakingDamage);
-    }
-
-    private IEnumerator Attack()
-    {
-        isAttacking = true;
-        animator.SetTrigger("Attack");
-        yield return new WaitForSeconds(0.5f); // Assuming attack animation lasts 0.5 seconds
-        isAttacking = false;
-    }
-
-    public void TakeDamage(int damage)
-    {
-        if (isTakingDamage) return;
-
-        health -= damage;
-        if (health <= 0)
-        {
-            // Handle death
-            animator.SetTrigger("Die");
-            // Disable further actions
-            this.enabled = false;
+            IsDead = true;
+            stateMachine.ChangeState(new NinjaDieState(stateMachine, this));
         }
         else
         {
-            StartCoroutine(DamageCoroutine());
+            stateMachine.ChangeState(new NinjaHurtState(stateMachine, this));
         }
     }
-
-    private IEnumerator DamageCoroutine()
+    
+    // Add this method to reset hurt state
+    public void ResetHurtState()
     {
-        isTakingDamage = true;
-        animator.SetTrigger("TakeDamage");
-        yield return new WaitForSeconds(0.5f); // Assuming damage animation lasts 0.5 seconds
-        isTakingDamage = false;
+        IsHurt = false;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.collider.CompareTag(GroundTag))
         {
-            isGrounded = true;
+            IsGrounded = true;
+            Debug.Log("Grounded: " + IsGrounded);
         }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.collider.CompareTag(GroundTag))
         {
-            isGrounded = false;
+            IsGrounded = false;
+            Debug.Log("Grounded: " + IsGrounded);
         }
     }
 }
