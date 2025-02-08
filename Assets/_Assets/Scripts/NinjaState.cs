@@ -1,12 +1,12 @@
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-// Template for all ninja states
+
 public abstract class NinjaState
 {
-    protected NinjaStateMachine stateMachine; // Reference to our state machine
-    protected NinjaController ninja;          // Reference to our ninja controller
-    protected SpriteRenderer spriteRenderer;  // Reference to sprite renderer for VFX
+    protected NinjaStateMachine stateMachine; 
+    protected NinjaController ninja;         
+    protected SpriteRenderer spriteRenderer;  
 
     // Constructor that all states will use
     public NinjaState(NinjaStateMachine stateMachine, NinjaController ninja)
@@ -16,11 +16,11 @@ public abstract class NinjaState
         this.spriteRenderer = ninja.GetComponent<SpriteRenderer>();
     }
 
-    // Virtual methods that states can override
+    
     public virtual void Enter() { }
     public virtual void Update() {
         if(stateMachine == null){
-            stateMachine = ninja.stateMachine;
+            stateMachine = ninja.stateMachine; // if i dont do this for some reason the stateMachine is null
         }
      }
     public virtual void Exit() { }

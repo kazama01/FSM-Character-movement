@@ -31,7 +31,7 @@ public class NinjaIdleState : NinjaState
     {
         base.Update();
         
-        // Handle State Transitions (in priority order)
+        
         if (ninja.IsDead)
         {
             stateMachine.ChangeState(new NinjaDieState(stateMachine, ninja));

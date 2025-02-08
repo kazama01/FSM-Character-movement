@@ -26,7 +26,7 @@ public class NinjaStatusConfig : ScriptableObject
     public float FallGravityMultiplier = 2f;
 
     [Header("Ground Settings")]
-    [ValueDropdown("GetAllTags")] // Using Odin's ValueDropdown
+    [ValueDropdown("GetAllTags")] 
     public string GroundTag = "Ground";
 
     private static IEnumerable GetAllTags()

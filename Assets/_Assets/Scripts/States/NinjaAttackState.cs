@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class NinjaAttackState : NinjaState
 {
-    // State tracking variables
+    
     private bool isAttackDone;
     private float attackTimer;
 
-    // Constructor
+  
     public NinjaAttackState(NinjaStateMachine stateMachine, NinjaController ninja) 
         : base(stateMachine, ninja) { }
 
@@ -19,18 +19,14 @@ public class NinjaAttackState : NinjaState
         StartNewAttack();
     }
 
-    // Helper function to start/reset attack
-    private void StartNewAttack()
+       private void StartNewAttack()
     {
-        // 1. Handle Animation
         ninja.animator.StopPlayback();
         PlayAttackAnimation();
         
-        // 2. Reset State Variables
         isAttackDone = false;
         attackTimer = 0;
         
-        // 3. Handle Physics
         StopHorizontalMovement();
     }
 
@@ -56,29 +52,23 @@ public class NinjaAttackState : NinjaState
     {
         base.Update();
 
-        // 1. Update Timer
         attackTimer += Time.deltaTime;
 
-        // 2. Handle Facing Direction
         UpdateFacingDirection();
 
-        // 3. Check for Attack Spam
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0))
         {
             StartNewAttack();
             return;
         }
 
-        // 4. Keep Player Stationary
         StopHorizontalMovement();
 
-        // 5. Check Attack Completion
         if (attackTimer >= ninja.stateConfig.attackDuration)
         {
             isAttackDone = true;
         }
 
-        // 6. Handle State Transitions
         if (isAttackDone)
         {
             TransitionToNextState();

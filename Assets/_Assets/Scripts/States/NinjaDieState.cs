@@ -14,12 +14,12 @@ public class NinjaDieState : NinjaState
     {
         base.Enter();
         
-        // Initialize state
+      
         hasStartedDying = false;
         hasDied = false;
         deathTimer = 0f;
 
-        // Get and cache fade controller reference
+        
         fadeController = ninja.GetComponent<fadeAmounController>();
         if (fadeController == null)
         {
@@ -27,25 +27,17 @@ public class NinjaDieState : NinjaState
         }
         else
         {
-            // Ensure the component is disabled initially
+           
             fadeController.enabled = false;
         }
 
-        // Keep physics enabled but prevent movement
+        
         ninja.rb.velocity = Vector2.zero;
         ninja.rb.constraints = RigidbodyConstraints2D.FreezePositionX;
 
-        // Play death animation if available
-        if (ninja.stateConfig.deathAnimation != null)
-        {
-            ninja.animator.Play(ninja.stateConfig.deathAnimation.name);
-            ninja.animator.speed = ninja.stateConfig.deathAnimationSpeed;
-        }
-        else
-        {
-            Debug.LogWarning("No death animation configured, falling back to string reference");
-            ninja.animator.Play("Ninja Dead");
-        }
+        ninja.animator.Play(ninja.stateConfig.deathAnimation.name);
+        ninja.animator.speed = ninja.stateConfig.deathAnimationSpeed;
+      
     }
 
     public override void Update()
@@ -63,14 +55,13 @@ public class NinjaDieState : NinjaState
             return;
         }
 
-        // Update death timer
+       
         if (!hasDied)
         {
             deathTimer += Time.deltaTime;
             if (deathTimer >= deathDelay)
             {
                 hasDied = true;
-                Debug.Log("Death animation complete");
                 GameObject.Destroy(ninja.gameObject);
             }
         }
@@ -78,29 +69,17 @@ public class NinjaDieState : NinjaState
 
     private void PlayDeathAnimation()
     {
-        Debug.Log("[Die State] Playing death animation");
-        
         ninja.rb.isKinematic = true;
         ninja.rb.constraints = RigidbodyConstraints2D.None;
         
         ninja.animator.StopPlayback();
         ninja.animator.speed = ninja.stateConfig.deathAnimationSpeed;
         
-        if (ninja.stateConfig.deathAnimation != null)
-        {
-            ninja.animator.Play(ninja.stateConfig.deathAnimation.name);
-        }
-        else
-        {
-            Debug.LogWarning("[Die State] No death animation configured, falling back to string reference");
-            ninja.animator.Play("Ninja Dead");
-        }
+        ninja.animator.Play(ninja.stateConfig.deathAnimation.name);
         
-        // Activate fade controller
         if (fadeController != null)
         {
             fadeController.enabled = true;
-            Debug.Log("[Die State] Activated fadeAmounController");
         }
         
         Time.timeScale = 0.5f;

@@ -17,7 +17,6 @@ public class ShaderEffectController
         
         spriteRenderer = renderer;
 
-        // Use existing material instance if provided, otherwise create new one
         if (existingMaterial != null)
         {
             materialInstance = existingMaterial;

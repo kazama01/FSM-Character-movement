@@ -19,14 +19,14 @@ public class NinjaJumpState : NinjaState
 
     private void InitializeJump()
     {
-        // 1. Handle Animation
+        
         PlayJumpAnimation();
         
-        // 2. Reset Jump Variables
+        
         hasLeftGround = false;
         canTransition = false;
         
-        // 3. Apply Jump Force
+       
         ninja.rb.AddForce(Vector2.up * ninja.GetJumpForce(), ForceMode2D.Impulse);
     }
 
@@ -48,13 +48,11 @@ public class NinjaJumpState : NinjaState
     {
         base.Update();
 
-        // 1. Handle Air Movement
+        
         HandleAirMovement();
 
-        // 2. Track Ground State
         UpdateGroundState();
 
-        // 3. Check State Transitions
         CheckStateTransitions();
     }
 
@@ -63,7 +61,6 @@ public class NinjaJumpState : NinjaState
         float moveInput = Input.GetAxis("Horizontal");
         ninja.rb.velocity = new Vector2(moveInput * ninja.GetMoveSpeed(), ninja.rb.velocity.y);
 
-        // Update facing direction
         if (moveInput > 0)
         {
             ninja.transform.localScale = new Vector3(1, 1, 1);

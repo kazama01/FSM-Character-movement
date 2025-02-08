@@ -38,7 +38,7 @@ public class NinjaHurtState : NinjaState
         base.Update();
         hurtTimer += Time.deltaTime;
 
-        // Calculate flash effect
+        // sin function to create a flash effect
         float flash = Mathf.Abs(Mathf.Sin(hurtTimer * ninja.stateConfig.hitFlashSpeed)) 
             * ninja.stateConfig.maxHitEffect;
         
@@ -80,7 +80,7 @@ public class NinjaHurtState : NinjaState
         base.Exit();
         if (spriteRenderer != null)
         {
-            // Clear effect on exit
+            
             propertyBlock.SetFloat("_HitEffectBlend", 0f);
             spriteRenderer.SetPropertyBlock(propertyBlock);
         }
@@ -104,14 +104,14 @@ public class NinjaHurtState : NinjaState
         float direction = ninja.transform.localScale.x;
         ninja.rb.velocity = Vector2.zero;
         
-        // Apply knockback force
+       
         Vector2 knockbackForce = new Vector2(
             -direction * ninja.GetHorizontalKnockback(), 
             ninja.GetVerticalKnockback()
         );
         ninja.rb.AddForce(knockbackForce, ForceMode2D.Impulse);
         
-        // Modify gravity scale for better fall feel
+       
         ninja.rb.gravityScale = ninja.GetFallGravityMultiplier();
     }
 }

@@ -31,20 +31,20 @@ public class NinjaRunState : NinjaState
     {
         base.Update();
 
-        // 1. Handle Movement
+       
         HandleMovement();
 
-        // 2. Handle State Transitions
+        
         CheckStateTransitions();
     }
 
     private void HandleMovement()
     {
         float moveInput = Input.GetAxis("Horizontal");
-        // Use getter method for move speed
+        
         ninja.rb.velocity = new Vector2(moveInput * ninja.GetMoveSpeed(), ninja.rb.velocity.y);
 
-        // Update facing direction
+        // flip sprite based on direction
         if (moveInput > 0)
         {
             ninja.transform.localScale = new Vector3(1, 1, 1);

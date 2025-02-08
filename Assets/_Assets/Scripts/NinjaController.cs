@@ -11,10 +11,9 @@ public class NinjaController : MonoBehaviour
     [Required("Status config is required!")]
     public NinjaStatusConfig statusConfig;
 
-    // Current stats
+ 
     private float currentHealth;
 
-    // State flags
     public bool IsGrounded { get; private set; }
     public bool IsMoving { get; private set; }
     public bool IsAttacking { get; private set; }
@@ -31,7 +30,6 @@ public class NinjaController : MonoBehaviour
         animator = GetComponent<Animator>();
         stateMachine = new NinjaStateMachine(new NinjaIdleState(stateMachine, this));
         
-        // Initialize health from config
         currentHealth = statusConfig.Health;
     }
 
@@ -41,7 +39,7 @@ public class NinjaController : MonoBehaviour
         if (IsDead)
         {
             IsMoving = false;
-            rb.velocity = Vector2.zero; // Stop any existing movement
+            rb.velocity = Vector2.zero; 
             return;
         }
 
@@ -55,10 +53,10 @@ public class NinjaController : MonoBehaviour
             TakeDamage(10f);
         }
 
-        // Cheat code to immediately reduce HP to 0
+        // Cheat code to kill player
         if (Input.GetKeyDown(KeyCode.K))
         {
-            TakeDamage(currentHealth); // Reduce HP to 0
+            TakeDamage(currentHealth); 
         }
 
         if (IsAttacking && !IsDead && !IsHurt)
@@ -76,10 +74,11 @@ public class NinjaController : MonoBehaviour
         currentHealth -= amount;
         IsHurt = true;
         
+        //if dead stop any movement from rb
         if (currentHealth <= 0)
         {
             IsDead = true;
-            rb.velocity = Vector2.zero; // Stop any existing movement
+            rb.velocity = Vector2.zero; 
             stateMachine.ChangeState(new NinjaDieState(stateMachine, this));
         }
         else
@@ -93,7 +92,7 @@ public class NinjaController : MonoBehaviour
         IsHurt = false;
     }
 
-    // Getter methods to access config values
+   
     public float GetMoveSpeed() => statusConfig.MoveSpeed;
     public float GetJumpForce() => statusConfig.JumpForce;
     public float GetHorizontalKnockback() => statusConfig.HorizontalKnockback;
@@ -117,6 +116,7 @@ public class NinjaController : MonoBehaviour
             IsGrounded = false;
         }
     }
+
 
     public void ForceKill()
     {

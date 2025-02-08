@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Health: 100
   MoveSpeed: 10
-  JumpForce: 5
+  JumpForce: 7
   HorizontalKnockback: 5
   VerticalKnockback: 2.5
   KnockbackDuration: 0.5

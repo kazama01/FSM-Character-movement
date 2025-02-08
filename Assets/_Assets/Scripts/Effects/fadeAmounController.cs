@@ -24,7 +24,6 @@ public class fadeAmounController : MonoBehaviour
 
     private void Awake()
     {
-        // Initialize components
         spriteRenderer = GetComponent<SpriteRenderer>();
         propertyBlock = new MaterialPropertyBlock();
         
@@ -46,7 +45,6 @@ public class fadeAmounController : MonoBehaviour
 
     private void Start()
     {
-        // Get initial value
         spriteRenderer.GetPropertyBlock(propertyBlock);
         startValue = propertyBlock.GetFloat(FADE_PROPERTY);
         Debug.Log($"[FadeController] Initial fade value: {startValue}");
@@ -59,12 +57,10 @@ public class fadeAmounController : MonoBehaviour
         fadeTimer += Time.deltaTime;
         float progress = Mathf.Clamp01(fadeTimer / fadeDuration);
         
-        // Get current value and calculate new one
         spriteRenderer.GetPropertyBlock(propertyBlock);
         float currentValue = propertyBlock.GetFloat(FADE_PROPERTY);
         float newValue = Mathf.Lerp(startValue, targetValue, progress);
         
-        // Update property block
         propertyBlock.SetFloat(FADE_PROPERTY, newValue);
         spriteRenderer.SetPropertyBlock(propertyBlock);
         
@@ -90,7 +86,6 @@ public class fadeAmounController : MonoBehaviour
         fadeTimer = 0f;
         isFading = true;
         
-        // Set initial value
         spriteRenderer.GetPropertyBlock(propertyBlock);
         propertyBlock.SetFloat(FADE_PROPERTY, from);
         spriteRenderer.SetPropertyBlock(propertyBlock);
