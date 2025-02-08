@@ -29,7 +29,6 @@ public class fadeAmounController : MonoBehaviour
         
         if (spriteRenderer == null)
         {
-            Debug.LogError("[FadeController] No SpriteRenderer found!");
             enabled = false;
             return;
         }
@@ -47,7 +46,6 @@ public class fadeAmounController : MonoBehaviour
     {
         spriteRenderer.GetPropertyBlock(propertyBlock);
         startValue = propertyBlock.GetFloat(FADE_PROPERTY);
-        Debug.Log($"[FadeController] Initial fade value: {startValue}");
     }
 
     private void Update()
@@ -64,12 +62,10 @@ public class fadeAmounController : MonoBehaviour
         propertyBlock.SetFloat(FADE_PROPERTY, newValue);
         spriteRenderer.SetPropertyBlock(propertyBlock);
         
-        Debug.Log($"[FadeController] Progress: {progress:P2} | Value: {currentValue:F3} -> {newValue:F3}");
 
         if (progress >= 1f)
         {
             isFading = false;
-            Debug.Log("[FadeController] Fade complete");
         }
     }
 
@@ -77,7 +73,6 @@ public class fadeAmounController : MonoBehaviour
     {
         if (spriteRenderer == null || propertyBlock == null)
         {
-            Debug.LogError("[FadeController] Components not initialized!");
             return;
         }
 
@@ -90,6 +85,5 @@ public class fadeAmounController : MonoBehaviour
         propertyBlock.SetFloat(FADE_PROPERTY, from);
         spriteRenderer.SetPropertyBlock(propertyBlock);
         
-        Debug.Log($"[FadeController] Starting fade from {from:F3} to {to:F3}");
     }
 }

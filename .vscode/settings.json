@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Dimas-FSM_Char_Movement.sln"
+    "dotnet.defaultSolution": "FSM-Character-movement.sln"
 }

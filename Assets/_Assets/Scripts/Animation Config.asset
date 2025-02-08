@@ -27,7 +27,7 @@ MonoBehaviour:
   hitEffectProperty: _HitEffectBlend
   maxHitEffect: 0.5
   hitFlashSpeed: 20
-  hitEffectColor: {r: 0, g: 0.9696946, b: 1, a: 1}
+  hitEffectColor: {r: 1, g: 0.13482335, b: 0, a: 1}
   deathAnimation: {fileID: 7400000, guid: ac3f9db7f4698cb438739b0bb9cf0a7e, type: 2}
   deathAnimationSpeed: 0.5
   fadeDuration: 2
