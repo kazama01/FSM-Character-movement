@@ -4,83 +4,113 @@ using UnityEngine;
 
 public class NinjaAttackState : NinjaState
 {
-    private bool animationFinished;
-    private float attackDuration = 0.5f; // Adjust based on your animation length
+    // State tracking variables
+    private bool isAttackDone;
     private float attackTimer;
-    private float savedVelocity;
 
-    public NinjaAttackState(NinjaStateMachine stateMachine, NinjaController ninja) : base(stateMachine, ninja) { }
+    // Constructor
+    public NinjaAttackState(NinjaStateMachine stateMachine, NinjaController ninja) 
+        : base(stateMachine, ninja) { }
 
     public override void Enter()
     {
         base.Enter();
-        Debug.Log("Entering Attack State");
-        ResetAttack();
+        Debug.Log("Starting Attack!");
+        StartNewAttack();
     }
 
-    private void ResetAttack()
+    // Helper function to start/reset attack
+    private void StartNewAttack()
     {
+        // 1. Handle Animation
         ninja.animator.StopPlayback();
-        ninja.animator.Play("Ninja Attack", -1, 0f); // The 0f parameter resets animation to start
-        animationFinished = false;
-        attackTimer = 0f;
+        PlayAttackAnimation();
         
-        // Save current velocity and stop movement
-        savedVelocity = ninja.rb.velocity.x;
+        // 2. Reset State Variables
+        isAttackDone = false;
+        attackTimer = 0;
+        
+        // 3. Handle Physics
+        StopHorizontalMovement();
+    }
+
+    private void PlayAttackAnimation()
+    {
+        if (ninja.stateConfig.attackAnimation == null)
+        {
+            Debug.LogError("Attack animation clip not assigned in StateConfig!");
+            return;
+        }
+        
+        ninja.animator.StopPlayback();
+        ninja.animator.Play(ninja.stateConfig.attackAnimation.name, -1, 0f);
+        ninja.animator.speed = ninja.stateConfig.attackAnimationSpeed;
+    }
+
+    private void StopHorizontalMovement()
+    {
         ninja.rb.velocity = new Vector2(0, ninja.rb.velocity.y);
     }
 
     public override void Update()
     {
         base.Update();
+
+        // 1. Update Timer
         attackTimer += Time.deltaTime;
 
-        // Handle sprite flipping during attack
-        float moveInput = Input.GetAxis("Horizontal");
-        if (Mathf.Abs(moveInput) > 0.1f)
-        {
-            ninja.transform.localScale = new Vector3(moveInput > 0 ? 1 : -1, 1, 1);
-        }
+        // 2. Handle Facing Direction
+        UpdateFacingDirection();
 
-        // Reset attack if button pressed again during animation
-        if (ninja.IsAttacking && !animationFinished)
+        // 3. Check for Attack Spam
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0))
         {
-            ResetAttack();
+            StartNewAttack();
             return;
         }
 
-        // Keep velocity at 0 during attack
-        ninja.rb.velocity = new Vector2(0, ninja.rb.velocity.y);
+        // 4. Keep Player Stationary
+        StopHorizontalMovement();
 
-        if (attackTimer >= attackDuration)
+        // 5. Check Attack Completion
+        if (attackTimer >= ninja.stateConfig.attackDuration)
         {
-            animationFinished = true;
+            isAttackDone = true;
         }
 
-        if (animationFinished)
+        // 6. Handle State Transitions
+        if (isAttackDone)
         {
-            // Restore velocity direction based on current input
-            if (Mathf.Abs(moveInput) > 0.1f)
-            {
-                ninja.rb.velocity = new Vector2(moveInput * ninja.MoveSpeed, ninja.rb.velocity.y);
-            }
+            TransitionToNextState();
+        }
+    }
 
-            if (ninja.IsDead)
-            {
-                stateMachine.ChangeState(new NinjaDieState(stateMachine, ninja));
-            }
-            else if (ninja.IsHurt)
-            {
-                stateMachine.ChangeState(new NinjaHurtState(stateMachine, ninja));
-            }
-            else if (ninja.IsMoving)
-            {
-                stateMachine.ChangeState(new NinjaRunState(stateMachine, ninja));
-            }
-            else
-            {
-                stateMachine.ChangeState(new NinjaIdleState(stateMachine, ninja));
-            }
+    private void UpdateFacingDirection()
+    {
+        float moveDirection = Input.GetAxis("Horizontal");
+        if (Mathf.Abs(moveDirection) > 0.1f)
+        {
+            ninja.transform.localScale = new Vector3(moveDirection > 0 ? 1 : -1, 1, 1);
+        }
+    }
+
+    private void TransitionToNextState()
+    {
+        if (ninja.IsDead)
+        {
+            stateMachine.ChangeState(new NinjaDieState(stateMachine, ninja));
+        }
+        else if (ninja.IsHurt)
+        {
+            stateMachine.ChangeState(new NinjaHurtState(stateMachine, ninja));
+        }
+        else if (ninja.IsMoving)
+        {
+            stateMachine.ChangeState(new NinjaRunState(stateMachine, ninja));
+        }
+        else
+        {
+            stateMachine.ChangeState(new NinjaIdleState(stateMachine, ninja));
         }
     }
 }

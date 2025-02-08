@@ -5,49 +5,62 @@ using Sirenix.OdinInspector;
 
 public class NinjaController : MonoBehaviour
 {
-    [Header("Basic Stats")]
-    public float Health = 100f;
-    public float MoveSpeed = 5f;
-    public float JumpForce = 10f;
+    [Header("Configurations")]
+    [Required("Status config is required!")]
+    public NinjaStateConfig stateConfig;
+    [Required("Status config is required!")]
+    public NinjaStatusConfig statusConfig;
 
-    [Header("Knockback Settings")]
-    public float HorizontalKnockback = 5f;
-    public float VerticalKnockback = 2.5f;
-    public float KnockbackDuration = 0.5f;
-    public float FallGravityMultiplier = 2f;
+    // Current stats
+    private float currentHealth;
 
+    // State flags
     public bool IsGrounded { get; private set; }
     public bool IsMoving { get; private set; }
     public bool IsAttacking { get; private set; }
     public bool IsHurt { get; private set; }
     public bool IsDead { get; private set; }
-    public LayerMask GroundLayer;
-    public Collider2D GroundCheckCollider;
-    public string GroundTag = "Ground";
+    
     public Animator animator;
-    [ShowInInspector] public NinjaStateMachine stateMachine;
-    public Rigidbody2D rb;
+    [HideInInspector] public NinjaStateMachine stateMachine;
+    [HideInInspector] public Rigidbody2D rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         stateMachine = new NinjaStateMachine(new NinjaIdleState(stateMachine, this));
+        
+        // Initialize health from config
+        currentHealth = statusConfig.Health;
     }
 
     void Update()
     {
+        // Disable movement input if dead
+        if (IsDead)
+        {
+            IsMoving = false;
+            rb.velocity = Vector2.zero; // Stop any existing movement
+            return;
+        }
+
         float moveInput = Input.GetAxis("Horizontal");
         IsMoving = Mathf.Abs(moveInput) > 0.1f;
         IsAttacking = (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0)) && IsGrounded;
 
-        // Test damage with E key
+        //current method to take damage
         if (Input.GetKeyDown(KeyCode.E) && !IsHurt)
         {
             TakeDamage(10f);
         }
 
-        // If attacking, prioritize attack state
+        // Cheat code to immediately reduce HP to 0
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            TakeDamage(currentHealth); // Reduce HP to 0
+        }
+
         if (IsAttacking && !IsDead && !IsHurt)
         {
             stateMachine.ChangeState(new NinjaAttackState(stateMachine, this));
@@ -58,14 +71,15 @@ public class NinjaController : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
-        if (IsHurt) return; // Prevent stun lock
+        if (IsHurt) return;
         
-        Health -= amount;
+        currentHealth -= amount;
         IsHurt = true;
         
-        if (Health <= 0)
+        if (currentHealth <= 0)
         {
             IsDead = true;
+            rb.velocity = Vector2.zero; // Stop any existing movement
             stateMachine.ChangeState(new NinjaDieState(stateMachine, this));
         }
         else
@@ -74,27 +88,33 @@ public class NinjaController : MonoBehaviour
         }
     }
     
-    // Add this method to reset hurt state
     public void ResetHurtState()
     {
         IsHurt = false;
     }
 
+    // Getter methods to access config values
+    public float GetMoveSpeed() => statusConfig.MoveSpeed;
+    public float GetJumpForce() => statusConfig.JumpForce;
+    public float GetHorizontalKnockback() => statusConfig.HorizontalKnockback;
+    public float GetVerticalKnockback() => statusConfig.VerticalKnockback;
+    public float GetKnockbackDuration() => statusConfig.KnockbackDuration;
+    public float GetFallGravityMultiplier() => statusConfig.FallGravityMultiplier;
+    public float GetCurrentHealth() => currentHealth;
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag(GroundTag))
+        if (collision.collider.CompareTag(statusConfig.GroundTag))
         {
             IsGrounded = true;
-            Debug.Log("Grounded: " + IsGrounded);
         }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag(GroundTag))
+        if (collision.collider.CompareTag(statusConfig.GroundTag))
         {
             IsGrounded = false;
-            Debug.Log("Grounded: " + IsGrounded);
         }
     }
 }

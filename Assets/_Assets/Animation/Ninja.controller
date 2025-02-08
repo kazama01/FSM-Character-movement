@@ -8,7 +8,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Ninja Dead
-  m_Speed: 0.2
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
@@ -215,22 +215,22 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -934210333313263652}
-    m_Position: {x: 190, y: 10, z: 0}
+    m_Position: {x: 0, y: 40, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -7556618687884306191}
-    m_Position: {x: 110, y: 340, z: 0}
+    m_Position: {x: -10, y: 250, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5862254319135824014}
-    m_Position: {x: 220, y: -60, z: 0}
+    m_Position: {x: -10, y: -20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5015732412797841780}
-    m_Position: {x: 160, y: 140, z: 0}
+    m_Position: {x: 0, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1583437109347605975}
-    m_Position: {x: 200, y: -150, z: 0}
+    m_Position: {x: -10, y: -80, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 827736043013251013}
-    m_Position: {x: 170, y: 250, z: 0}
+    m_Position: {x: 0, y: 180, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3396358992434092047}
     m_Position: {x: -190, y: 540, z: 0}
@@ -239,7 +239,7 @@ AnimatorStateMachine:
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: -160, y: 30, z: 0}
+  m_AnyStatePosition: {x: -220, y: -10, z: 0}
   m_EntryPosition: {x: -340, y: 410, z: 0}
   m_ExitPosition: {x: 890, y: 160, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}

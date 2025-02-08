@@ -4,20 +4,34 @@ using UnityEngine;
 
 public class NinjaIdleState : NinjaState
 {
-    public NinjaIdleState(NinjaStateMachine stateMachine, NinjaController ninja) : base(stateMachine, ninja) { }
+    public NinjaIdleState(NinjaStateMachine stateMachine, NinjaController ninja) 
+        : base(stateMachine, ninja) { }
 
     public override void Enter()
     {
         base.Enter();
         Debug.Log("Entering Idle State");
+        PlayIdleAnimation();
+    }
+
+    private void PlayIdleAnimation()
+    {
+        if (ninja.stateConfig.idleAnimation == null)
+        {
+            Debug.LogError("Idle animation clip not assigned in StateConfig!");
+            return;
+        }
+        
         ninja.animator.StopPlayback();
-        ninja.animator.Play("Ninja Idle");
+        ninja.animator.Play(ninja.stateConfig.idleAnimation.name);
+        ninja.animator.speed = ninja.stateConfig.idleAnimationSpeed;
     }
 
     public override void Update()
     {
         base.Update();
         
+        // Handle State Transitions (in priority order)
         if (ninja.IsDead)
         {
             stateMachine.ChangeState(new NinjaDieState(stateMachine, ninja));

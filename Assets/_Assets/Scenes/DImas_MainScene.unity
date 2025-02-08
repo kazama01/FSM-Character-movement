@@ -624,6 +624,7 @@ GameObject:
   - component: {fileID: 1587382759}
   - component: {fileID: 1587382761}
   - component: {fileID: 1587382762}
+  - component: {fileID: 1587382763}
   m_Layer: 0
   m_Name: NinjaAtk
   m_TagString: Untagged
@@ -651,7 +652,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 4887f4167dcd43f45a22b68bc96e4e4c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -731,21 +732,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29399d14fc2315c4492a39c716fd3db9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Health: 100
-  MoveSpeed: 5
-  JumpForce: 10
-  Acceleration: 50
-  Deceleration: 100
-  VelocityPower: 0.9
-  HorizontalKnockback: 5
-  VerticalKnockback: 2.5
-  KnockbackDuration: 0.5
-  FallGravityMultiplier: 2
-  GroundLayer:
-    serializedVersion: 2
-    m_Bits: 16
-  GroundCheckCollider: {fileID: 661974211}
-  GroundTag: Ground
+  stateConfig: {fileID: 11400000, guid: c9dcbc05efbfbdc41b5af7b9e7fc7fec, type: 2}
+  statusConfig: {fileID: 11400000, guid: 83fc368dd9f32854aacb50001bc994cc, type: 2}
   animator: {fileID: 1587382757}
   rb: {fileID: 1587382761}
 --- !u!50 &1587382761
@@ -820,6 +808,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 2.8991938, y: 4.4629354}
   m_EdgeRadius: 0
+--- !u!114 &1587382763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1587382755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52e0f6b5eadd0fd42961714eaf29d36e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeAmount: 0
 --- !u!1 &1602815440
 GameObject:
   m_ObjectHideFlags: 0

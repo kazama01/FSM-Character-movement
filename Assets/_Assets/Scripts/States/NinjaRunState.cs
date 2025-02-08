@@ -4,28 +4,47 @@ using UnityEngine;
 
 public class NinjaRunState : NinjaState
 {
-    public NinjaRunState(NinjaStateMachine stateMachine, NinjaController ninja) : base(stateMachine, ninja) { }
+    public NinjaRunState(NinjaStateMachine stateMachine, NinjaController ninja) 
+        : base(stateMachine, ninja) { }
 
     public override void Enter()
     {
         base.Enter();
         Debug.Log("Entering Run State");
+        PlayRunAnimation();
+    }
+
+    private void PlayRunAnimation()
+    {
+        if (ninja.stateConfig.runAnimation == null)
+        {
+            Debug.LogError("Run animation clip not assigned in StateConfig!");
+            return;
+        }
+        
         ninja.animator.StopPlayback();
-        ninja.animator.Play("Ninja Run");
+        ninja.animator.Play(ninja.stateConfig.runAnimation.name);
+        ninja.animator.speed = ninja.stateConfig.runAnimationSpeed;
     }
 
     public override void Update()
     {
         base.Update();
 
-        // Get input
+        // 1. Handle Movement
+        HandleMovement();
+
+        // 2. Handle State Transitions
+        CheckStateTransitions();
+    }
+
+    private void HandleMovement()
+    {
         float moveInput = Input.GetAxis("Horizontal");
+        // Use getter method for move speed
+        ninja.rb.velocity = new Vector2(moveInput * ninja.GetMoveSpeed(), ninja.rb.velocity.y);
 
-        // Immediately set velocity based on input
-        float targetVelocity = moveInput * ninja.MoveSpeed;
-        ninja.rb.velocity = new Vector2(targetVelocity, ninja.rb.velocity.y);
-
-        // Handle sprite flipping
+        // Update facing direction
         if (moveInput > 0)
         {
             ninja.transform.localScale = new Vector3(1, 1, 1);
@@ -34,8 +53,10 @@ public class NinjaRunState : NinjaState
         {
             ninja.transform.localScale = new Vector3(-1, 1, 1);
         }
+    }
 
-        // Handle state transitions
+    private void CheckStateTransitions()
+    {
         if (ninja.IsDead)
         {
             stateMachine.ChangeState(new NinjaDieState(stateMachine, ninja));

@@ -5,31 +5,29 @@ public class NinjaHurtState : NinjaState
 {
     private bool animationFinished;
     private float hurtTimer;
+    private SpriteRenderer spriteRenderer;
+    private ShaderEffectController effectController;
 
     public NinjaHurtState(NinjaStateMachine stateMachine, NinjaController ninja) : base(stateMachine, ninja) { }
 
     public override void Enter()
     {
         base.Enter();
-        Debug.Log("Entering Hurt State");
+        
+        spriteRenderer = ninja.GetComponent<SpriteRenderer>();
+        effectController = new ShaderEffectController(spriteRenderer);
+        
+        effectController.StartEffect();
+        
         ninja.animator.StopPlayback();
-        ninja.animator.Play("Ninja Hurt");
+        PlayHurtAnimation();
+        
+        // Initialize state
+        ninja.animator.speed = ninja.stateConfig.hurtAnimationSpeed;
         animationFinished = false;
         hurtTimer = 0f;
 
-        // Apply knockback with configurable forces
-        float direction = ninja.transform.localScale.x;
-        ninja.rb.velocity = Vector2.zero;
-        
-        // Apply knockback force
-        Vector2 knockbackForce = new Vector2(
-            -direction * ninja.HorizontalKnockback, 
-            ninja.VerticalKnockback
-        );
-        ninja.rb.AddForce(knockbackForce, ForceMode2D.Impulse);
-        
-        // Modify gravity scale for better fall feel
-        ninja.rb.gravityScale = ninja.FallGravityMultiplier;
+        ApplyKnockback();
     }
 
     public override void Update()
@@ -37,9 +35,17 @@ public class NinjaHurtState : NinjaState
         base.Update();
         hurtTimer += Time.deltaTime;
 
-        if (hurtTimer >= ninja.KnockbackDuration)
+        effectController.UpdateFlashEffect(
+            Time.deltaTime,
+            ninja.stateConfig.hitFlashSpeed,
+            ninja.stateConfig.maxHitEffect,
+            ninja.stateConfig.hitEffectColor  // Add the color parameter
+        );
+
+        if (hurtTimer >= ninja.GetKnockbackDuration())
         {
             animationFinished = true;
+            effectController.StopEffect();
         }
 
         // Only transition when both animation is finished AND player is grounded
@@ -61,5 +67,43 @@ public class NinjaHurtState : NinjaState
                 stateMachine.ChangeState(new NinjaIdleState(stateMachine, ninja));
             }
         }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        if (spriteRenderer != null)
+        {
+            effectController.StopEffect();
+        }
+    }
+
+    private void PlayHurtAnimation()
+    {
+        if (ninja.stateConfig.hurtAnimation == null)
+        {
+            Debug.LogError("Hurt animation clip not assigned in StateConfig!");
+            return;
+        }
+        
+        ninja.animator.StopPlayback();
+        ninja.animator.Play(ninja.stateConfig.hurtAnimation.name);
+        ninja.animator.speed = ninja.stateConfig.hurtAnimationSpeed;
+    }
+
+    private void ApplyKnockback()
+    {
+        float direction = ninja.transform.localScale.x;
+        ninja.rb.velocity = Vector2.zero;
+        
+        // Apply knockback force
+        Vector2 knockbackForce = new Vector2(
+            -direction * ninja.GetHorizontalKnockback(), 
+            ninja.GetVerticalKnockback()
+        );
+        ninja.rb.AddForce(knockbackForce, ForceMode2D.Impulse);
+        
+        // Modify gravity scale for better fall feel
+        ninja.rb.gravityScale = ninja.GetFallGravityMultiplier();
     }
 }
