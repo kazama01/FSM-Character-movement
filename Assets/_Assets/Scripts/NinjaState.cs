@@ -18,6 +18,10 @@ public abstract class NinjaState
 
     // Virtual methods that states can override
     public virtual void Enter() { }
-    public virtual void Update() { }
+    public virtual void Update() {
+        if(stateMachine == null){
+            stateMachine = ninja.stateMachine;
+        }
+     }
     public virtual void Exit() { }
 }

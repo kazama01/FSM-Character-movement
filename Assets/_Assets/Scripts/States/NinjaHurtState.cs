@@ -6,7 +6,7 @@ public class NinjaHurtState : NinjaState
     private bool animationFinished;
     private float hurtTimer;
     private SpriteRenderer spriteRenderer;
-    private ShaderEffectController effectController;
+    private MaterialPropertyBlock propertyBlock;
 
     public NinjaHurtState(NinjaStateMachine stateMachine, NinjaController ninja) : base(stateMachine, ninja) { }
 
@@ -15,14 +15,17 @@ public class NinjaHurtState : NinjaState
         base.Enter();
         
         spriteRenderer = ninja.GetComponent<SpriteRenderer>();
-        effectController = new ShaderEffectController(spriteRenderer);
+        propertyBlock = new MaterialPropertyBlock();
         
-        effectController.StartEffect();
+       
+        propertyBlock.SetFloat("_HitEffectBlend", 0f);
+        propertyBlock.SetColor("_HitEffectColor", ninja.stateConfig.hitEffectColor);
+        spriteRenderer.SetPropertyBlock(propertyBlock);
         
         ninja.animator.StopPlayback();
         PlayHurtAnimation();
         
-        // Initialize state
+      
         ninja.animator.speed = ninja.stateConfig.hurtAnimationSpeed;
         animationFinished = false;
         hurtTimer = 0f;
@@ -35,24 +38,27 @@ public class NinjaHurtState : NinjaState
         base.Update();
         hurtTimer += Time.deltaTime;
 
-        effectController.UpdateFlashEffect(
-            Time.deltaTime,
-            ninja.stateConfig.hitFlashSpeed,
-            ninja.stateConfig.maxHitEffect,
-            ninja.stateConfig.hitEffectColor  // Add the color parameter
-        );
+        // Calculate flash effect
+        float flash = Mathf.Abs(Mathf.Sin(hurtTimer * ninja.stateConfig.hitFlashSpeed)) 
+            * ninja.stateConfig.maxHitEffect;
+        
+        
+        spriteRenderer.GetPropertyBlock(propertyBlock);
+        propertyBlock.SetFloat("_HitEffectBlend", flash);
+        spriteRenderer.SetPropertyBlock(propertyBlock);
 
         if (hurtTimer >= ninja.GetKnockbackDuration())
         {
             animationFinished = true;
-            effectController.StopEffect();
+            propertyBlock.SetFloat("_HitEffectBlend", 0f);
+            spriteRenderer.SetPropertyBlock(propertyBlock);
         }
 
-        // Only transition when both animation is finished AND player is grounded
+        
         if (animationFinished && ninja.IsGrounded)
         {
             ninja.ResetHurtState();
-            ninja.rb.gravityScale = 1f; // Reset gravity scale
+            ninja.rb.gravityScale = 1f; 
             
             if (ninja.IsDead)
             {
@@ -74,7 +80,9 @@ public class NinjaHurtState : NinjaState
         base.Exit();
         if (spriteRenderer != null)
         {
-            effectController.StopEffect();
+            // Clear effect on exit
+            propertyBlock.SetFloat("_HitEffectBlend", 0f);
+            spriteRenderer.SetPropertyBlock(propertyBlock);
         }
     }
 

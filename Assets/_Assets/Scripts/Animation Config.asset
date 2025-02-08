@@ -30,6 +30,6 @@ MonoBehaviour:
   hitEffectColor: {r: 0, g: 0.9696946, b: 1, a: 1}
   deathAnimation: {fileID: 7400000, guid: ac3f9db7f4698cb438739b0bb9cf0a7e, type: 2}
   deathAnimationSpeed: 0.5
-  fadeSpeed: 0.58
-  fadeBurnColor: {r: 1, g: 0, b: 0.12727642, a: 1}
-  fadeBurnGlow: 2
+  fadeDuration: 2
+  fadeStartValue: -0.1
+  fadeEndValue: 1

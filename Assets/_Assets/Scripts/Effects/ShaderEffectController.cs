@@ -4,14 +4,32 @@ public class ShaderEffectController
 {
     private static MaterialPropertyBlock propertyBlock;
     private readonly SpriteRenderer spriteRenderer;
+    private readonly Material materialInstance;
     private float effectTimer;
-    private float fadeTimer;
-    private bool isFading;
-    private const string FADE_AMOUNT = "_FadeAmount";
 
-    public ShaderEffectController(SpriteRenderer renderer)
+    public ShaderEffectController(SpriteRenderer renderer, Material existingMaterial = null)
     {
+        if (renderer == null)
+        {
+            Debug.LogError("[ShaderEffectController] Null SpriteRenderer passed!");
+            return;
+        }
+        
         spriteRenderer = renderer;
+
+        // Use existing material instance if provided, otherwise create new one
+        if (existingMaterial != null)
+        {
+            materialInstance = existingMaterial;
+            Debug.Log("[ShaderEffectController] Using existing material instance");
+        }
+        else
+        {
+            materialInstance = new Material(spriteRenderer.material);
+            spriteRenderer.material = materialInstance;
+            Debug.Log("[ShaderEffectController] Created new material instance");
+        }
+        
         if (propertyBlock == null)
             propertyBlock = new MaterialPropertyBlock();
     }
@@ -47,31 +65,11 @@ public class ShaderEffectController
         UpdatePropertyBlock(0f, "_HitEffectBlend");
     }
 
-    public void StartFade(float initialValue = 0f)
+    ~ShaderEffectController()
     {
-        fadeTimer = 0f;
-        isFading = true;
-        spriteRenderer.material.SetFloat(FADE_AMOUNT, initialValue);
-    }
-
-    public void UpdateFade(float deltaTime, float fadeDuration)
-    {
-        if (!isFading) return;
-
-        fadeTimer += deltaTime;
-        float progress = fadeTimer / fadeDuration;
-        float fadeAmount = Mathf.Lerp(0f, 1f, progress);
-        
-        spriteRenderer.material.SetFloat(FADE_AMOUNT, fadeAmount);
-
-        if (progress >= 1f)
+        if (materialInstance != null)
         {
-            isFading = false;
+            Object.Destroy(materialInstance);
         }
-    }
-
-    public bool IsFadingComplete()
-    {
-        return !isFading;
     }
 }

@@ -41,6 +41,11 @@ public class NinjaStateConfig : ScriptableObject
     public float deathAnimationSpeed = 1f;
 
     [Header("Death Effect Settings")]
-    public float fadeDuration = 2f;  // Controls how long it takes to fade out
+    [Range(0.1f, 5f)]
+    public float fadeDuration = 2f;
+    [Range(-0.1f, 1f)]
+    public float fadeStartValue = 0f;
+    [Range(0f, 1f)]
+    public float fadeEndValue = 1f;
 
 }

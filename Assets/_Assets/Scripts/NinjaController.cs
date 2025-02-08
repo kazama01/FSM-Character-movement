@@ -117,4 +117,11 @@ public class NinjaController : MonoBehaviour
             IsGrounded = false;
         }
     }
+
+    public void ForceKill()
+    {
+        IsDead = true;
+        currentHealth = 0;
+        Debug.Log("[Debug] Force killed player");
+    }
 }
