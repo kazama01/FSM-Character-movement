@@ -1,26 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
-public class NinjaState : MonoBehaviour
+
+public abstract class NinjaState
 {
-    private BaseState currentState;
+    protected NinjaStateMachine stateMachine; 
+    protected NinjaController ninja;         
+    protected SpriteRenderer spriteRenderer;  
 
-    void Start()
+    // Constructor that all states will use
+    public NinjaState(NinjaStateMachine stateMachine, NinjaController ninja)
     {
-        currentState = new IdleState(this);
-        currentState.Enter();
+        this.stateMachine = stateMachine;
+        this.ninja = ninja;
+        this.spriteRenderer = ninja.GetComponent<SpriteRenderer>();
     }
 
-    void Update()
-    {
-        currentState.UpdateState();
-    }
-
-    public void ChangeState(BaseState newState)
-    {
-        currentState.Exit();
-        currentState = newState;
-        currentState.Enter();
-    }
+    
+    public virtual void Enter() { }
+    public virtual void Update() {
+        if(stateMachine == null){
+            stateMachine = ninja.stateMachine; // if i dont do this for some reason the stateMachine is null
+        }
+     }
+    public virtual void Exit() { }
 }

@@ -1,105 +1,127 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 public class NinjaController : MonoBehaviour
 {
-    private Rigidbody2D rb;
-    private Animator animator;
-    private bool isGrounded;
-    private bool isAttacking;
-    private bool isTakingDamage;
+    [Header("Configurations")]
+    [Required("Status config is required!")]
+    public NinjaStateConfig stateConfig;
+    [Required("Status config is required!")]
+    public NinjaStatusConfig statusConfig;
 
-    public float moveSpeed = 5f;
-    public float jumpForce = 10f;
-    public int health = 100;
+ 
+    private float currentHealth;
+
+    public bool IsGrounded { get; private set; }
+    public bool IsMoving { get; private set; }
+    public bool IsAttacking { get; private set; }
+    public bool IsHurt { get; private set; }
+    public bool IsDead { get; private set; }
+    
+    public Animator animator;
+    [HideInInspector] public NinjaStateMachine stateMachine;
+    [HideInInspector] public Rigidbody2D rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        stateMachine = new NinjaStateMachine(new NinjaIdleState(stateMachine, this));
+        
+        currentHealth = statusConfig.Health;
     }
 
     void Update()
     {
-        if (isTakingDamage) return;
+        // Disable movement input if dead
+        if (IsDead)
+        {
+            IsMoving = false;
+            rb.velocity = Vector2.zero; 
+            return;
+        }
 
         float moveInput = Input.GetAxis("Horizontal");
-        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+        IsMoving = Mathf.Abs(moveInput) > 0.1f;
+        IsAttacking = (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0)) && IsGrounded;
 
-        if (moveInput != 0)
+        //current method to take damage
+        if (Input.GetKeyDown(KeyCode.E) && !IsHurt)
         {
-            transform.localScale = new Vector3(Mathf.Sign(moveInput), 1, 1);
+            TakeDamage(10f);
         }
 
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // Cheat code to kill player
+        if (Input.GetKeyDown(KeyCode.K))
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            TakeDamage(currentHealth); 
         }
 
-        if (Input.GetButtonDown("Fire1") && !isAttacking)
+        if (IsAttacking && !IsDead && !IsHurt)
         {
-            StartCoroutine(Attack());
+            stateMachine.ChangeState(new NinjaAttackState(stateMachine, this));
         }
 
-        UpdateAnimations(moveInput);
+        stateMachine.Update();
     }
 
-    private void UpdateAnimations(float moveInput)
+    public void TakeDamage(float amount)
     {
-        animator.SetFloat("Speed", Mathf.Abs(moveInput));
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetBool("isAttacking", isAttacking);
-        animator.SetBool("isTakingDamage", isTakingDamage);
-    }
-
-    private IEnumerator Attack()
-    {
-        isAttacking = true;
-        animator.SetTrigger("Attack");
-        yield return new WaitForSeconds(0.5f); // Assuming attack animation lasts 0.5 seconds
-        isAttacking = false;
-    }
-
-    public void TakeDamage(int damage)
-    {
-        if (isTakingDamage) return;
-
-        health -= damage;
-        if (health <= 0)
+        if (IsHurt) return;
+        
+        currentHealth -= amount;
+        IsHurt = true;
+        
+        //if dead stop any movement from rb
+        if (currentHealth <= 0)
         {
-            // Handle death
-            animator.SetTrigger("Die");
-            // Disable further actions
-            this.enabled = false;
+            IsDead = true;
+            rb.velocity = Vector2.zero; 
+            stateMachine.ChangeState(new NinjaDieState(stateMachine, this));
         }
         else
         {
-            StartCoroutine(DamageCoroutine());
+            stateMachine.ChangeState(new NinjaHurtState(stateMachine, this));
         }
     }
-
-    private IEnumerator DamageCoroutine()
+    
+    public void ResetHurtState()
     {
-        isTakingDamage = true;
-        animator.SetTrigger("TakeDamage");
-        yield return new WaitForSeconds(0.5f); // Assuming damage animation lasts 0.5 seconds
-        isTakingDamage = false;
+        IsHurt = false;
     }
+
+   
+    public float GetMoveSpeed() => statusConfig.MoveSpeed;
+    public float GetJumpForce() => statusConfig.JumpForce;
+    public float GetHorizontalKnockback() => statusConfig.HorizontalKnockback;
+    public float GetVerticalKnockback() => statusConfig.VerticalKnockback;
+    public float GetKnockbackDuration() => statusConfig.KnockbackDuration;
+    public float GetFallGravityMultiplier() => statusConfig.FallGravityMultiplier;
+    public float GetCurrentHealth() => currentHealth;
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.collider.CompareTag(statusConfig.GroundTag))
         {
-            isGrounded = true;
+            IsGrounded = true;
         }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.collider.CompareTag(statusConfig.GroundTag))
         {
-            isGrounded = false;
+            IsGrounded = false;
         }
+    }
+
+
+    public void ForceKill()
+    {
+        IsDead = true;
+        currentHealth = 0;
+        Debug.Log("[Debug] Force killed player");
     }
 }

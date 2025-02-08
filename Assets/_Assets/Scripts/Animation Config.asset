@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 882b2778616d156428febd43180f64f1, type: 3}
+  m_Name: Animation Config
+  m_EditorClassIdentifier: 
+  idleAnimation: {fileID: 7400000, guid: 74667c556ef27ac47977fd103bd61bba, type: 2}
+  idleAnimationSpeed: 0.5
+  runAnimation: {fileID: 7400000, guid: 96608559fa7546a4cb250363a9d84aea, type: 2}
+  runAnimationSpeed: 0.5
+  jumpAnimation: {fileID: 7400000, guid: 28b4e39f09c44e342b092f9e9f5a2d97, type: 2}
+  jumpAnimationSpeed: 0.5
+  attackAnimation: {fileID: 7400000, guid: df145dbbd0b95614aac1cd1ac65c0770, type: 2}
+  attackDuration: 0.5
+  attackAnimationSpeed: 1.25
+  hurtAnimation: {fileID: 7400000, guid: 45a15f39d72a55d4a93e0ec3a79e1c01, type: 2}
+  hurtDuration: 0.5
+  hurtAnimationSpeed: 1
+  hitEffectProperty: _HitEffectBlend
+  maxHitEffect: 0.5
+  hitFlashSpeed: 20
+  hitEffectColor: {r: 1, g: 0.13482335, b: 0, a: 1}
+  deathAnimation: {fileID: 7400000, guid: ac3f9db7f4698cb438739b0bb9cf0a7e, type: 2}
+  deathAnimationSpeed: 0.5
+  fadeDuration: 2
+  fadeStartValue: -0.1
+  fadeEndValue: 1
